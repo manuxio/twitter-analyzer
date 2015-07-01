@@ -1,0 +1,12 @@
+<% extend 'page' %>
+<div class="container">
+	<p></p>
+</div>
+<div class="container">
+	<p>I dati relativi all'account <b><%- @screen_name %></b> sono stati <% if @updated : %>aggiornati<% else : %>inseriti<% end %>.</p>
+	<p>Sono stati recuperati <%- @total %> tweets.</p>
+</div>
+<div class="container">
+	<p>Questo sistema &egrave; per uso privato. Ogni risultato dev'essere inteso come non ufficiale.</p>
+	<p>&copy; 2015 - Manu at Cappelleri dot Net</p>
+</div>

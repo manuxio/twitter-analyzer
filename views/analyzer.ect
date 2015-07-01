@@ -1,0 +1,137 @@
+<% extend 'page' %>
+<div class="container">
+	<p></p>
+</div>
+<div class="container">
+	<div class="row">
+		<div class="col-md-9">
+			<div id="mainspace"></div>
+		</div>
+		<div class="col-md-3">
+			<p class="bg-primary" style="padding: 10px">Account presenti nel database</p>
+			<div id="accounts">
+				<% for acct in @names : %>
+				<div>
+					<label>
+						<input type="checkbox" value="<%- acct.screenName %>" /> <%- acct.screenName %>
+					</label>
+				</div>
+				<% end %>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container">
+	<div class="row">
+		<div class="col-md-9">
+			<div id="twitts"></div>
+		</div>
+	</div>
+</div>
+<div class="container">
+	<p>Questo sistema &egrave; per uso privato. Ogni risultato dev'essere inteso come non ufficiale.</p>
+	<p>&copy; 2015 - Manu at Cappelleri dot Net</p>
+</div>
+<script>
+	$( ":checkbox" ).on("click", function(ev, el) {
+		var el = $(this);
+		var name = el.val();
+		var add = el.is(':checked');
+		var chart = $('#mainspace').highcharts();
+		if (add) {
+			$.getJSON('/twits/'+name, function( data ) {
+				var serie = {
+					name: name,
+					data: []
+				};
+				for (var i = 0; i < data.length; i++) {
+					serie.data.push(
+						{
+							x: (new Date(Date.parse(data[i].created_at_time))).getTime(), 
+							y: 1, 
+							text: data[i].text,
+							id_str: data[i].id
+						}
+					);
+				}
+				chart.addSeries(serie, true, true);
+			});
+		}
+	});
+	
+	var series = [];
+	
+	$(function () {
+		$('#mainspace').highcharts({
+			chart: {
+				type: 'column',
+				zoomType: 'x',
+				panning: true
+			},
+			title: {
+				text: 'Grafico tweet nel tempo'
+			},
+			subtitle: {
+				text: 'Seleziona gli account sulla destra'
+			},
+			xAxis: {
+				
+				type: 'datetime'
+			},
+			yAxis: {
+				title: {
+					text: 'Tweet'
+				},
+				max: 1,
+				min: 0,
+				minorTickInterval: 1,
+				tickAmount: 1,
+				lineWidth: 0,
+			   minorGridLineWidth: 0,
+			   lineColor: 'transparent',
+			   labels: {
+			       enabled: false
+			   },
+			   minorTickLength: 0,
+			   tickLength: 0
+			},
+			legend: {
+				layout: 'vertical',
+				align: 'left',
+				verticalAlign: 'top',
+				x: 100,
+				y: 70,
+				floating: true,
+				backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF',
+				borderWidth: 1
+			},
+			rangeSelector : {
+				selected : 1
+			},
+			plotOptions: {
+				column: {
+	          pointPadding: 0.1,
+	          borderWidth: 0
+	      },
+	      series: {
+	      	turboThreshold: 0,
+        	stacking: 'normal',
+        	point: {
+              events: {
+                  click: function () {
+                      //console.log(this.series, this.text);
+                      var el = $('<div style="border: 1px solid black; padding: 5px; margin-bottom: 5px">' + this.series.name + ' in data ' + (new Date(this.x)) + '<br/><a target="_twitter" href="https://twitter.com/statuses/' + this.id_str +'">' + this.text + '</a></div>');
+                      $('#twitts').prepend(el);
+                  }
+              }
+          }
+        }
+			},
+			series: [],
+			
+		});
+	});
+
+
+
+</script>
